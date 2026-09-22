@@ -62,3 +62,19 @@ To run this project locally or in a fresh Collab environment, follow these steps
    ```bash
    git clone [https://github.com/abhik99//IndustryGPT.git](https://github.com/abhik99//IndustryGPT.git)
    cd IndustryGPT
+   
+2. **Install Dependencies**
+    ```bash
+
+    pip install -r requirements.txt
+
+3. **Run the Notebook**
+Open the Colab/Jupyter Notebook and execute the cells sequentially. The architecture is explicitly configured to handle hardware constraints on a standard 16GB T4 GPU.
+
+### 🔮 Future Scope
+
+   - Dynamic API Integration: Connecting the chatbot directly to live tracking databases to provide real-time package locations and dynamic weather-delay updates.
+
+   - Advanced RAG (Hybrid Search): Combining FAISS vector search with BM25 keyword search to accurately retrieve exact alphanumeric strings like tracking numbers and SKU codes.
+
+   - Production Deployment: Containerizing the architecture with Docker and deploying the Gradio frontend to Hugging Face Spaces for permanent public access.
