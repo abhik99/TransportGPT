@@ -1,0 +1,12 @@
+transformers
+peft
+trl
+bitsandbytes
+accelerate
+datasets
+faiss-cpu
+sentence-transformers
+gradio
+pandas
+matplotlib
+seaborn
