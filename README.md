@@ -1,5 +1,6 @@
 # 🚛 IndustryGPT / TransportGPT: Specialized Logistics & Supply Chain LLM
 
+[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.23326308-blue?style=for-the-badge)](https://doi.org/10.5281/zenodo.23326308)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
 [![Hugging Face](https://img.shields.io/badge/Hugging%20Face-Transformers%20%26%20TRL-FFD21E?style=for-the-badge&logo=huggingface&logoColor=black)](https://huggingface.co)
 [![TinyLlama](https://img.shields.io/badge/Base%20LLM-TinyLlama--1.1B--Chat-black?style=for-the-badge)](https://huggingface.co/TinyLlama)
@@ -136,6 +137,25 @@ pip install -r requirment.txt
 
 ### 3. Run Inference or Open Notebook
 Launch `TransportGPT.ipynb` on Google Colab (GPU Runtime T4) or local Jupyter Lab to run training or spin up the Gradio user interface.
+
+---
+
+## 📄 Academic Research Paper
+This project is backed by peer-reviewed published academic research:
+* **Title:** *Resource-Efficient Fine-Tuning of Compact LLMs for Supply Chain Operations: A Hybrid QLoRA and RAG Approach*
+* **Author:** Abhishek Kumar (Master's in CS: Artificial Intelligence and Machine Learning, Woolf University)
+* **Permanent DOI:** [10.5281/zenodo.23326308](https://doi.org/10.5281/zenodo.23326308)
+* **Citation (BibTeX):**
+```bibtex
+@article{kumar2026resource,
+  title={Resource-Efficient Fine-Tuning of Compact LLMs for Supply Chain Operations: A Hybrid QLoRA and RAG Approach},
+  author={Kumar, Abhishek},
+  journal={Zenodo},
+  year={2026},
+  doi={10.5281/zenodo.23326308},
+  url={https://doi.org/10.5281/zenodo.23326308}
+}
+```
 
 ---
 
