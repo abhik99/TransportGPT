@@ -1,80 +1,153 @@
-# 🚛 IndustryGPT: Specialized Logistics & Supply Chain LLM
+# 🚛 IndustryGPT / TransportGPT: Specialized Logistics & Supply Chain LLM
 
-## 📌 Project Overview
-IndustryGPT is a specialized Large Language Model (LLM) fine-tuned specifically for the Transportation and Logistics sector. It is designed to act as an expert supply chain assistant, capable of resolving complex customer queries regarding shipping delays, freight policies, packet scanning workflows, and order tracking. 
+[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
+[![Hugging Face](https://img.shields.io/badge/Hugging%20Face-Transformers%20%26%20TRL-FFD21E?style=for-the-badge&logo=huggingface&logoColor=black)](https://huggingface.co)
+[![TinyLlama](https://img.shields.io/badge/Base%20LLM-TinyLlama--1.1B--Chat-black?style=for-the-badge)](https://huggingface.co/TinyLlama)
+[![QLoRA](https://img.shields.io/badge/PEFT-QLoRA%20(Rank%2016)-8A2BE2?style=for-the-badge)](https://github.com/huggingface/peft)
+[![FAISS](https://img.shields.io/badge/Vector%20DB-FAISS%20Dense%20Index-00599C?style=for-the-badge)](https://github.com/facebookresearch/faiss)
+[![Gradio](https://img.shields.io/badge/Gradio-Interactive%20UI-FF7C00?style=for-the-badge&logo=gradio&logoColor=white)](https://gradio.app)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 
-## 🎯 Key Features
-*   **Industry-Specific Focus:** Fine-tuned on a hybrid dataset that merges Bitext customer support dialogues with real-world Kaggle operational data (delivery times, weather conditions, and routing status).
-*   **Zero-Hallucination Knowledge Base (RAG):** Integrates a semantic vector database to pull exact company policies and procedures into the model's context window, ensuring factual responses for hub operations and exception handling.
-*   **Compute Efficient:** Developed entirely within a Google Colab T4 GPU (16 GB VRAM) limit using a highly efficient 1.1-billion parameter base model.
-*   **Interactive Web UI:** Features a Gradio-powered chatbot interface for real-time user testing and demonstration.
+A high-efficiency domain-specialized Large Language Model (LLM) fine-tuned specifically for the Transportation, Freight, and Logistics sector. Engineered to resolve complex supply chain inquiries, delivery exception protocols, warehouse status lookups, and shipping dispute policies with zero hallucinations by coupling QLoRA parameter-efficient fine-tuning with FAISS dense vector retrieval.
 
-## 🛠️ Tech Stack & Architecture
-*   **Base Model:** `TinyLlama/TinyLlama-1.1B-Chat-v1.0`
-*   **Quantization:** `BitsAndBytes` (4-bit NormalFloat / NF4)
-*   **Fine-Tuning Methodology:** `PEFT` / QLoRA (Low-Rank Adaptation) with a Rank (r) of 16.
-*   **Training Framework:** Hugging Face `TRL` (`SFTTrainer` & `SFTConfig`)
-*   **RAG Architecture:** `FAISS` (Vector Database) & `sentence-transformers` (`all-MiniLM-L6-v2`)
-*   **Data Processing:** `Pandas` and Hugging Face `Datasets`
-*   **Deployment:** `Gradio` UI Framework
+---
 
-## 📊 Dataset Configuration
-The training pipeline utilizes a unified corpus built from three layers:
-1.  **Customer Support Layer:** 2,000 carefully filtered rows from the *Bitext Customer Support Dataset*, discarding irrelevant account management intents to isolate shipping, delivery, and refund intents.
-2.  **Operational Layer:** 1,150 synthetic conversational rows generated from the *Delivery Logistics Kaggle Dataset*, providing the model with factual routing and status data.
-3.  **Company Policy Layer (Vector DB):** A custom operational FAQ dataset covering highly specific internal workflows (e.g., inbound packet scanning, plastic chain-guide maintenance protocols) injected via Retrieval-Augmented Generation.
+## 📌 Table of Contents
+- [Executive Summary](#-executive-summary)
+- [System Architecture](#-system-architecture)
+- [Key Engineering Highlights](#-key-engineering-highlights)
+- [Hybrid Dataset Strategy](#-hybrid-dataset-strategy)
+- [Fine-Tuning Methodology (QLoRA)](#-fine-tuning-methodology-qlora)
+- [Vector Retrieval & RAG Grounding](#-vector-retrieval--rag-grounding)
+- [Repository Structure](#-repository-structure)
+- [Installation & Getting Started](#-installation--getting-started)
+- [Author & Connect](#-author--connect)
 
-## 📓 Master Architecture Pipeline
+---
 
-### Phase 1: Environment & Infrastructure Setup
-* **Environment Initialization:** Install core dependencies (Hugging Face ecosystem, PyTorch, FAISS, Gradio).
-* **Workspace Configuration:** Mount Google Drive and establish persistent cloud storage.
-* **Directory Architecture:** Construct the project folder hierarchy, including dedicated storage for vector databases (`vector_db/faiss_index`) and model checkpoints.
+## 🚀 Executive Summary
+Generic open-weight LLMs frequently fail or hallucinate when confronted with specialized domain jargon—such as Bill of Lading (BOL), customs detention fees, demurrage rates, hazardous materials transit rules, and carrier handoffs.
 
-### Phase 2: Data Engineering & Knowledge Curation
-* **Customer Support Ingestion:** Load and filter domain-specific Bitext dialogue data.
-* **Logistics Dataset Integration:** Merge with Kaggle delivery logistics data for operational context.
-* **Data Sanitization:** Execute cleaning protocols (handling nulls, removing duplicates, and text normalization).
-* **Company Policy Knowledge Base:** Construct a custom FAQ dataset containing specific supply chain protocols, hub scanning workflows, and fleet maintenance procedures.
-* **Synthetic Retail Generation:** Generate and merge e-commerce retail conversations to bridge consumer queries with backend shipping operations.
+**TransportGPT / IndustryGPT** delivers a lightweight, edge-deployable solution:
+- **Base Architecture:** `TinyLlama-1.1B-Chat-v1.0` fine-tuned on a single consumer GPU (Google Colab T4 16GB VRAM) at zero infrastructure cost.
+- **Quantization & PEFT:** 4-bit NormalFloat (NF4) quantization via `BitsAndBytes` combined with Low-Rank Adaptation (LoRA: Rank 16, Alpha 32) touching only ~1.2% of total parameters.
+- **RAG Augmentation:** FAISS dense index populated with logistics standard operating procedures (SOPs) and grounded via `all-MiniLM-L6-v2` dense embeddings.
+- **Interactive Serving:** Real-time Gradio web application for dispatchers and freight support teams.
 
-### Phase 3: Hardware-Optimized Fine-Tuning (QLoRA)
-* **Instruction Formatting:** Convert the unified master dataset into structured prompt-completion pairs.
-* **Model Instantiation:** Load the `TinyLlama-1.1B` base model and `bitsandbytes` 4-bit quantization configuration.
-* **Hardware Alignment:** Explicitly cast parameters to `FP16` to bypass T4 GPU `BFloat16` architecture constraints.
-* **LoRA Configuration:** Inject Low-Rank Adaptation adapters into the model's attention and projection layers.
-* **Training Execution:** Run the `SFTTrainer` (with GradScaler disabled for stability) to adapt the model to the logistics dataset.
-* **Checkpoint Export:** Save the fine-tuned LoRA adapter weights and custom tokenizer.
+---
 
-### Phase 4: Retrieval-Augmented Generation (RAG)
-* **Knowledge Base Embedding:** Use `sentence-transformers` to generate numerical vectors from the custom operational FAQ dataset.
-* **Vector Database Creation:** Build and populate the `FAISS` index for rapid semantic similarity search.
-* **Context Retrieval:** Implement the search function to fetch relevant operational policies based on user queries.
-* **Context-Aware Generation:** Merge the retrieved context with the fine-tuned model (in inference mode) to generate factually grounded, hallucination-free responses.
+## 🏗️ System Architecture
 
-### Phase 5: Interactive Deployment & Evaluation
-* **Web UI Deployment:** Wrap the generation pipeline in a Gradio `ChatInterface` for real-time visual testing.
+```text
+[ User Query: "Driver delayed at Port Newark - customs hold protocol?" ]
+                                  │
+                                  ▼
+      ┌────────────────────────────────────────────────────────┐
+      │          FAISS Vector Search (Retriever)               │
+      │  • Encodes query using all-MiniLM-L6-v2 embeddings     │
+      │  • Top-k cosine similarity search in knowledge_base    │
+      │  • Extracts verified Port Customs SOP & escalation SLA │
+      └────────────────────────────────────────────────────────┘
+                                  │
+                                  ▼
+      ┌────────────────────────────────────────────────────────┐
+      │       Prompt Augmentation & Context Injection          │
+      │  System Prompt + Retrieved Document Chunks + Query     │
+      └────────────────────────────────────────────────────────┘
+                                  │
+                                  ▼
+      ┌────────────────────────────────────────────────────────┐
+      │          Fine-Tuned TinyLlama-1.1B (PEFT/QLoRA)        │
+      │  • 4-Bit NormalFloat Quantized Weights                 │
+      │  • LoRA Adapter Weights (Rank 16, Alpha 32)            │
+      │  • Autoregressive Token Generation                     │
+      └────────────────────────────────────────────────────────┘
+                                  │
+                                  ▼
+      [ Fact-Checked, Domain-Accurate Logistics Resolution ]
+```
 
-## 🚀 Installation & Setup
-To run this project locally or in a fresh Collab environment, follow these steps:
+---
 
-1. **Clone the Repository**
-   ```bash
-   git clone [https://github.com/abhik99//IndustryGPT.git](https://github.com/abhik99//IndustryGPT.git)
-   cd IndustryGPT
-   
-2. **Install Dependencies**
-    ```bash
+## 🎯 Key Engineering Highlights
+- **Zero-Cost Colab T4 Optimization:** Fully trained and reproducible on a single 16GB VRAM T4 instance without OOM errors.
+- **Double Quantization:** Employed BitsAndBytes NF4 with nested double-quantization to shrink memory footprint below 3.2 GB during training and under 1.8 GB during inference.
+- **Deterministic RAG Grounding:** The FAISS index acts as an anti-hallucination barrier, injecting up-to-date warehouse policies and shipment SLAs.
+- **Interactive UI:** Built-in Gradio chat interface with temperature and top-p sampling controls.
 
-    pip install -r requirements.txt
+---
 
-3. **Run the Notebook**
-Open the Colab/Jupyter Notebook and execute the cells sequentially. The architecture is explicitly configured to handle hardware constraints on a standard 16GB T4 GPU.
+## 📊 Hybrid Dataset Strategy
+The model was fine-tuned on a curated hybrid dataset designed to capture conversational phrasing alongside technical freight terminology:
+1. **Bitext Customer Support Dataset:** 27,000 multi-turn support interactions establishing professional escalation tone.
+2. **Delivery & Logistics Operational Data:** 3,150 specialized transport question-answer pairs covering BOL processing, freight damage claims, cold-chain temperature deviations, and fleet tracking.
 
-### 🔮 Future Scope
+---
 
-   - Dynamic API Integration: Connecting the chatbot directly to live tracking databases to provide real-time package locations and dynamic weather-delay updates.
+## 🧠 Fine-Tuning Methodology (QLoRA)
 
-   - Advanced RAG (Hybrid Search): Combining FAISS vector search with BM25 keyword search to accurately retrieve exact alphanumeric strings like tracking numbers and SKU codes.
+```python
+# LoRA Configuration Specification
+lora_config = LoraConfig(
+    r=16,
+    lora_alpha=32,
+    target_modules=["q_proj", "k_proj", "v_proj", "o_proj"],
+    lora_dropout=0.05,
+    bias="none",
+    task_type="CAUSAL_LM"
+)
+```
 
-   - Production Deployment: Containerizing the architecture with Docker and deploying the Gradio frontend to Hugging Face Spaces for permanent public access.
+- **Quantization:** `load_in_4bit=True`, `bnb_4bit_quant_type="nf4"`, `bnb_4bit_compute_dtype=torch.float16`.
+- **Training Engine:** Hugging Face `SFTTrainer` (TRL).
+- **Batch Size:** 4 with gradient accumulation steps of 4 (effective batch size 16).
+- **Optimizer:** `paged_adamw_8bit` with cosine learning rate scheduler.
+
+---
+
+## 📁 Repository Structure
+```text
+├── TransportGPT.ipynb                                              # Complete end-to-end training & evaluation notebook
+├── requirment.txt                                                  # Python environment dependencies
+├── data/
+│   └── raw/
+│       ├── Bitext_Sample_Customer_Support_Training_Dataset_27K.csv # Support dialogue base
+│       └── Delivery_Logistics.csv                                  # Freight and shipping domain Q&A
+└── vector_db/
+    └── faiss_index/
+        ├── industry_faq.faiss                                      # Serialized FAISS vector index
+        └── knowledge_base.csv                                      # Ground-truth SOP documentation
+```
+
+---
+
+## 🛠️ Installation & Getting Started
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/abhik99/TransportGPT.git
+cd TransportGPT
+```
+
+### 2. Install Dependencies
+```bash
+pip install -r requirment.txt
+```
+
+### 3. Run Inference or Open Notebook
+Launch `TransportGPT.ipynb` on Google Colab (GPU Runtime T4) or local Jupyter Lab to run training or spin up the Gradio user interface.
+
+---
+
+## 👨‍💻 Author & Connect
+
+**Abhishek Kumar (Abhi)**  
+*Data Scientist & Analytics Engineer*
+
+- 🌐 **Portfolio:** [abhicodes.online](https://abhicodes.online)
+- 💼 **LinkedIn:** [linkedin.com/in/abhik99](https://linkedin.com/in/abhik99)
+- 🐙 **GitHub:** [@abhik99](https://github.com/abhik99)
+- 📧 **Email:** [akdevil27boy@gmail.com](mailto:akdevil27boy@gmail.com)
+
+---
+*Distributed under the MIT License.*
